@@ -17,10 +17,10 @@ def exit():
         config.scope = None
 
 
-def init(platform='CWLITEXMEGA'):
+def init(platform="CWLITEXMEGA", serial_number=None):
     if config.scope is None:
         config.platform = platform
-        config.scope = cw.scope()
+        config.scope = cw.scope(sn=serial_number)
         config.target = cw.target(config.scope, target_type=cw.targets.SimpleSerial2)
     config.scope.default_setup()
     return config.scope, config.target
@@ -37,6 +37,8 @@ def compile(path, cryptooptions=None):
                 f"PLATFORM={config.platform}",
                 f"FIRMWAREPATH={config.firmwarepath}",
                 f"TARGET={os.path.splitext(os.path.basename(path))[0]}",
+                "clean",
+                "allquick",
             ]
             + cryptooptions,
             cwd=os.path.dirname(path),
@@ -56,9 +58,9 @@ def compile(path, cryptooptions=None):
 
 
 def flash(path):
-    if config.platform == 'CWLITEXMEGA':
+    if config.platform == "CWLITEXMEGA":
         prog = cw.programmers.XMEGAProgrammer
-    elif config.platform == 'CWLITEARM':
+    elif config.platform == "CWLITEARM":
         prog = cw.programmers.STM32FProgrammer
     programmed = cw.program_target(
         scope=config.scope,
